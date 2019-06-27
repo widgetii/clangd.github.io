@@ -19,6 +19,13 @@ Clangd can be installed (along with LLVM) via [Homebrew](https://brew.sh):
 brew install llvm
 ```
 
+For build latest version on macOS from source with cutting edge features use
+`--HEAD` parameter:
+
+```
+brew install --HEAD llvm
+```
+
 If you don't want to use homebrew, you can download the a binary release of
 LLVM from [releases.llvm.org](http://releases.llvm.org/download.html).
 Alongside `bin/clangd` you will need at least `lib/clang/*/include`:
@@ -285,4 +292,13 @@ flags one-per-line in `compile_flags.txt` in your source root.
 Clangd will assume the compile command is `clang $FLAGS some_file.cc`.
 
 Creating this file by hand is a reasonable place to start if your project is
-quite simple.
+quite simple. You also can use one-liner for populate `compile_flags.txt` with
+default include directories for your system:
+
+```sh
+cc -E -x c++ - -v < /dev/null 2>&1 | \
+    awk '/End of search list./ { show=0 } \
+    { if (show) printf "-I%s\n",$1 }; \
+    /#include <...> search starts here:/ { show=1; }' \
+    > compile_flags.txt
+```
